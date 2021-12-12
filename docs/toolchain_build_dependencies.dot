@@ -1,0 +1,29 @@
+digraph {
+
+MPFR -> GMP;
+MPC -> GMP;
+MPC -> MPFR;
+binutils;
+"core compiler 1" -> ISL;
+"core compiler 1" -> MPC;
+"core compiler 1" -> MPFR;
+kernel_headers;
+"glibc headers" -> kernel_headers;
+"glibc headers" -> "core compiler 1";
+"core compiler 2" -> "glibc headers";
+"core compiler 2" -> "core compiler 1";
+"core compiler 2" -> ISL;
+"core compiler 2" -> MPC;
+"core compiler 2" -> MPFR;
+ISL -> GMP;
+glibc -> "core compiler 2";
+compiler -> glibc;
+compiler -> binutils;
+compiler -> "core compiler 2";
+compiler -> ISL;
+compiler -> MPC;
+compiler -> MPFR;
+
+}
+
+# https://crosstool-ng.github.io/docs/toolchain-construction/

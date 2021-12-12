@@ -1,0 +1,16 @@
+digraph {
+
+MPFR -> GMP;
+MPC -> GMP;
+MPC -> MPFR;
+glibc -> kernel_headers;
+compiler -> glibc;
+compiler -> binutils;
+ISL -> GMP;
+compiler -> ISL;
+compiler -> MPC;
+compiler -> MPFR;
+
+}
+
+# https://crosstool-ng.github.io/docs/toolchain-construction/
