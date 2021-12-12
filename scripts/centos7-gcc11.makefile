@@ -31,15 +31,15 @@ BINUTILS_INSTALL:
 
 
 COMPILER_PKG:
-	@echo https://cbs.centos.org/kojifiles/packages/devtoolset-10-gcc/10.2.1/11.2.el7/src/devtoolset-10-gcc-10.2.1-11.2.el7.src.rpm
+	@echo https://cbs.centos.org/kojifiles/packages/devtoolset-11-gcc/11.2.1/1.2.el7/src/devtoolset-11-gcc-11.2.1-1.2.el7.src.rpm
 
 COMPILER_PATCH:
-	cmake -E tar -zxf gcc-10.2.1-20210130.tar.xz
-	cd gcc-10.2.1-20210130 && patch -p1 < "${FILES}/disable_pch.patch"
-	cd gcc-10.2.1-20210130 && mkdir b
+	cmake -E tar -zxf gcc-11.2.1-20210728.tar.xz
+	cd gcc-11.2.1-20210728 && patch -p1 < "${FILES}/disable_pch.patch"
+	cd gcc-11.2.1-20210728 && mkdir b
 
 COMPILER_CONFIGURE:
-	cd gcc-10.2.1-20210130/b && \
+	cd gcc-11.2.1-20210728/b && \
 	../configure --target=x86_64-redhat-linux \
 			--prefix=${INSTALL_DIR} \
 			--disable-multilib \
@@ -51,9 +51,9 @@ COMPILER_CONFIGURE:
 			--with-sysroot=${SYSROOT}
 
 COMPILER_BUILD:
-	cd gcc-10.2.1-20210130/b && \
+	cd gcc-11.2.1-20210728/b && \
 	make -j$(sysctl -n hw.logicalcpu || nproc)
 
 COMPILER_INSTALL:
-	cd gcc-10.2.1-20210130/b && \
+	cd gcc-11.2.1-20210728/b && \
 	make install

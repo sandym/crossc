@@ -11,9 +11,9 @@ This repo contains scripts to build cross toolchains for some specific linux dis
 
 ## Status
 
-### centos7 devtoolset-10
+### centos7 devtoolset-11
 
-- It builds the centos7 devtoolset-10 `gcc` version and is able to compile and link a native binary!
+- It builds the centos7 devtoolset-11 `gcc` version and is able to compile and link a native binary!
 ```
 /a.out: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.32, not stripped
 ```
@@ -48,13 +48,13 @@ Make sure that `/opt/cross` exists and is writable.
 ```
 > mkdir crossc/build
 > cd crossc/build
-> cmake -G Ninja -DCROSSC_TARGET=centos7-gcc10 ../.
+> cmake -G Ninja -DCROSSC_TARGET=centos7-gcc8 ../.
 > ninja
 ```
 
-It will build and install the cross toolchain in `/opt/cross/centos7-gcc10`.
+It will build and install the cross toolchain in `/opt/cross/centos7-gcc8`.
 
-`/opt/cross/centos7-gcc10/bin`:
+`/opt/cross/centos7-gcc8/bin`:
 - `x86_64-redhat-linux-addr2line`
 - `x86_64-redhat-linux-ar`
 - `x86_64-redhat-linux-as`

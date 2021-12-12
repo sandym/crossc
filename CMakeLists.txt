@@ -3,7 +3,7 @@ project(crossc)
 
 # support:
 #	centos7-gcc8
-#	centos7-gcc10
+#	centos7-gcc11
 #	centos9-gcc
 #	ubuntu_lts-gcc
 #	ubuntu-gcc
