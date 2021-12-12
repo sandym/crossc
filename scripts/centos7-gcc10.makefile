@@ -1,4 +1,7 @@
 
+ISL_VERSION:
+	@echo 0.24
+
 SYSROOT_PKGS:
 	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-2.17-325.el7_9.x86_64.rpm
 	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-devel-2.17-325.el7_9.x86_64.rpm

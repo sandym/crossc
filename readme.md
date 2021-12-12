@@ -32,7 +32,8 @@ This repo contains scripts to build cross toolchains for some specific linux dis
 
 ### centos7 devtoolset-8
 - `binutils` + _redhat_ patches
-- missing: `gcc`
+- `gcc` + _redhat_ patches
+- It builds and generated binaries run in `centos:7` `x86_64` !!!
 
 ### centos9 `binutils` and `gcc`
 - not started

@@ -1,0 +1,13 @@
+--- old/gcc/config.host	2021-12-12 19:04:43.000000000 +1100
++++ new/gcc/config.host	2021-12-12 19:04:46.000000000 +1100
+@@ -93,8 +93,8 @@
+ case ${host} in
+   *-darwin*)
+     # Generic darwin host support.
+-    out_host_hook_obj=host-darwin.o
+-    host_xmake_file="${host_xmake_file} x-darwin"
++#    out_host_hook_obj=host-darwin.o
++#    host_xmake_file="${host_xmake_file} x-darwin"
+     ;;
+ esac
+ 

@@ -21,11 +21,18 @@ if(NOT EXISTS ${TARGET_MAKEFILE})
 	message(FATAL_ERROR "unsupported CROSSC_TARGET = ${CROSSC_TARGET}")
 endif()
 
-# 
+# gmp, mpfr and mpc hardcoded to latest version
 set(GMP_VERSION 6.2.1)
 set(MPFR_VERSION 4.1.0)
-set(ISL_VERSION 0.24)
 set(MPC_VERSION 1.2.1)
+
+# some gcc might need a specific version of isl
+execute_process(
+	COMMAND make -f ${TARGET_MAKEFILE} ISL_VERSION
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/scripts
+	OUTPUT_VARIABLE ISL_VERSION
+)
+string(STRIP ${ISL_VERSION} ISL_VERSION)
 
 include(ExternalProject)
 include(ProcessorCount)
