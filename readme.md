@@ -31,7 +31,8 @@ This repo contains scripts to build cross toolchains for some specific linux dis
 - `gold` linker is not built (?)
 
 ### centos7 devtoolset-8
-- not started
+- `binutils` + _redhat_ patches
+- missing: `gcc`
 
 ### centos9 `binutils` and `gcc`
 - not started
