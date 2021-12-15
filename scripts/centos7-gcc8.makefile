@@ -1,12 +1,21 @@
+
+TARGET = x86_64
+
+ifeq ($(TARGET), x86_64)
+	GCC_CONFIG = --enable-targets=x86_64-pep
+else
+	ALT_ARCH = -altarch
+endif
+
 ISL_VERSION:
 	@echo 0.16.1
 
 SYSROOT_PKGS:
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-2.17-325.el7_9.x86_64.rpm
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-devel-2.17-325.el7_9.x86_64.rpm
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-common-2.17-325.el7_9.x86_64.rpm
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-headers-2.17-325.el7_9.x86_64.rpm
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/kernel-headers-3.10.0-1160.49.1.el7.x86_64.rpm
+	@echo http://mirror.centos.org/centos${ALT_ARCH}/7/updates/${TARGET}/Packages/glibc-2.17-325.el7_9.${TARGET}.rpm
+	@echo http://mirror.centos.org/centos${ALT_ARCH}/7/updates/${TARGET}/Packages/glibc-devel-2.17-325.el7_9.${TARGET}.rpm
+	@echo http://mirror.centos.org/centos${ALT_ARCH}/7/updates/${TARGET}/Packages/glibc-common-2.17-325.el7_9.${TARGET}.rpm
+	@echo http://mirror.centos.org/centos${ALT_ARCH}/7/updates/${TARGET}/Packages/glibc-headers-2.17-325.el7_9.${TARGET}.rpm
+	@echo http://mirror.centos.org/centos${ALT_ARCH}/7/updates/${TARGET}/Packages/kernel-headers-3.10.0-1160.49.1.el7.${TARGET}.rpm
 
 BINUTILS_PKG:
 	@echo https://cbs.centos.org/kojifiles/packages/devtoolset-8-binutils/2.30/55.el7.2/src/devtoolset-8-binutils-2.30-55.el7.2.src.rpm
@@ -71,7 +80,7 @@ BINUTILS_PATCH:
 
 BINUTILS_CONFIGURE:
 	cd binutils-2.30 && \
-	./configure --target=x86_64-redhat-linux \
+	./configure --target=${TARGET}-redhat-linux \
 				--prefix=${INSTALL_DIR} \
 				--disable-nls \
 				--disable-error \
@@ -84,7 +93,7 @@ BINUTILS_CONFIGURE:
 				--enable-lto \
 				--enable-compressed-debug-sections=none \
 				--enable-generate-build-notes=no \
-				--enable-targets=x86_64-pep \
+				${GCC_CONFIG} \
 				--enable-relro=yes \
 				--enable-plugins \
 				--with-sysroot=${SYSROOT}
@@ -157,7 +166,7 @@ COMPILER_PATCH:
 
 COMPILER_CONFIGURE:
 	cd gcc-8.3.1-20190311/b && \
-	../configure --target=x86_64-redhat-linux \
+	../configure --target=${TARGET}-redhat-linux \
 			--prefix=${INSTALL_DIR} \
 			--enable-shared \
 			--enable-threads=posix \

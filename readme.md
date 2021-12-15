@@ -48,13 +48,13 @@ Make sure that `/opt/cross` exists and is writable.
 ```
 > mkdir crossc/build
 > cd crossc/build
-> cmake -G Ninja -DCROSSC_TARGET=centos7-gcc8 ../.
+> cmake -G Ninja -DCROSSC_PLATFORM=centos7-gcc8 ../.
 > ninja
 ```
 
-It will build and install the cross toolchain in `/opt/cross/centos7-gcc8`.
+It will build and install the cross toolchain in `/opt/cross/centos7-gcc8-x86_64`.
 
-`/opt/cross/centos7-gcc8/bin`:
+`/opt/cross/centos7-gcc8-x86_64/bin`:
 - `x86_64-redhat-linux-addr2line`
 - `x86_64-redhat-linux-ar`
 - `x86_64-redhat-linux-as`

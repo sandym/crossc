@@ -1,13 +1,14 @@
+TARGET = x86_64
 
 ISL_VERSION:
 	@echo 0.24
 
 SYSROOT_PKGS:
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-2.17-325.el7_9.x86_64.rpm
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-devel-2.17-325.el7_9.x86_64.rpm
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-common-2.17-325.el7_9.x86_64.rpm
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/glibc-headers-2.17-325.el7_9.x86_64.rpm
-	@echo http://mirror.centos.org/centos/7/updates/x86_64/Packages/kernel-headers-3.10.0-1160.49.1.el7.x86_64.rpm
+	@echo http://mirror.centos.org/centos/7/updates/${TARGET}/Packages/glibc-2.17-325.el7_9.${TARGET}.rpm
+	@echo http://mirror.centos.org/centos/7/updates/${TARGET}/Packages/glibc-devel-2.17-325.el7_9.${TARGET}.rpm
+	@echo http://mirror.centos.org/centos/7/updates/${TARGET}/Packages/glibc-common-2.17-325.el7_9.${TARGET}.rpm
+	@echo http://mirror.centos.org/centos/7/updates/${TARGET}/Packages/glibc-headers-2.17-325.el7_9.${TARGET}.rpm
+	@echo http://mirror.centos.org/centos/7/updates/${TARGET}/Packages/kernel-headers-3.10.0-1160.49.1.el7.${TARGET}.rpm
 
 BINUTILS_PKG:
 	@echo https://ftp.gnu.org/gnu/binutils/binutils-2.37.tar.xz
@@ -15,7 +16,7 @@ BINUTILS_PKG:
 BINUTILS_PATCH:
 
 BINUTILS_CONFIGURE:
-	./configure --target=x86_64-redhat-linux \
+	./configure --target=${TARGET}-redhat-linux \
 				--prefix=${INSTALL_DIR} \
 				--disable-nls \
 				--disable-error \
@@ -40,7 +41,7 @@ COMPILER_PATCH:
 
 COMPILER_CONFIGURE:
 	cd gcc-11.2.1-20210728/b && \
-	../configure --target=x86_64-redhat-linux \
+	../configure --target=${TARGET}-redhat-linux \
 			--prefix=${INSTALL_DIR} \
 			--disable-multilib \
 			--with-mpc=${INSTALL_DIR} \
