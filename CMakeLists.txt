@@ -177,16 +177,3 @@ foreach(PKG ${SYSROOT_PKGS})
 	add_dependencies(compiler sysroot-${INDEX})
 	MATH(EXPR INDEX "${INDEX}+1")
 endforeach()
-
-# mold
-ExternalProject_Add(mold
-	URL ${CMAKE_SOURCE_DIR}/mold
-
-	BUILD_IN_SOURCE Yes
-	
-	CONFIGURE_COMMAND ""
-	BUILD_COMMAND make -j${NPROC} PREFIX=<INSTALL_DIR>
-	INSTALL_COMMAND make install PREFIX=<INSTALL_DIR>
-
-	INSTALL_DIR ${DESTROOT}
-)
