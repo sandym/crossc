@@ -2,13 +2,11 @@ cmake_minimum_required(VERSION 3.20)
 project(crossc)
 
 # support:
-#	centos7-gcc8
 #	centos7-gcc11
 #	centos9-gcc
-#	ubuntu_lts-gcc
 #	ubuntu-gcc
 
-set(CROSSC_PLATFORM centos7-gcc8 CACHE STRING "platform")
+set(CROSSC_PLATFORM centos7-gcc11 CACHE STRING "platform")
 set(CROSSC_TARGET x86_64 CACHE STRING "target")
 
 # some constants, DESTROOT, SYSROOT, TARGET_MAKEFILE, TARGET_FILES

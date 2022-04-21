@@ -30,11 +30,6 @@ This repo contains scripts to build cross toolchains for some specific linux dis
 - build `gcc` with the _redhat_ patches.
 - `gold` linker is not built (?)
 
-### centos7 devtoolset-8
-- `binutils` + _redhat_ patches
-- `gcc` + _redhat_ patches
-- It builds and generated binaries run in `centos:7` `x86_64` !!!
-
 ### centos9 `binutils` and `gcc`
 - not started
 
@@ -48,13 +43,13 @@ Make sure that `/opt/cross` exists and is writable.
 ```
 > mkdir crossc/build
 > cd crossc/build
-> cmake -G Ninja -DCROSSC_PLATFORM=centos7-gcc8 ../.
+> cmake -G Ninja -DCROSSC_PLATFORM=centos7-gcc11 ../.
 > ninja
 ```
 
-It will build and install the cross toolchain in `/opt/cross/centos7-gcc8-x86_64`.
+It will build and install the cross toolchain in `/opt/cross/centos7-gcc11-x86_64`.
 
-`/opt/cross/centos7-gcc8-x86_64/bin`:
+`/opt/cross/centos7-gcc11-x86_64/bin`:
 - `x86_64-redhat-linux-addr2line`
 - `x86_64-redhat-linux-ar`
 - `x86_64-redhat-linux-as`
