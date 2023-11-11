@@ -1,37 +1,30 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.24)
 project(crossc)
 
-# support:
-#	centos7-gcc11
-#	centos9-gcc
-#	ubuntu-gcc
+find_program(MAKE gmake)
 
-set(CROSSC_PLATFORM centos7-gcc11 CACHE STRING "platform")
+# support:
+#	centos9-gcc13
+
+set(CROSSC_PLATFORM centos9-gcc13 CACHE STRING "platform")
 set(CROSSC_TARGET x86_64 CACHE STRING "target")
 
-# some constants, DESTROOT, SYSROOT, TARGET_MAKEFILE, TARGET_FILES
+# some constants, DESTROOT, SYSROOT, TARGET_MAKEFILE
 set(DESTROOT /opt/cross/${CROSSC_PLATFORM}-${CROSSC_TARGET})
 set(SYSROOT ${DESTROOT}/sysroot)
-set(TARGET_MAKEFILE ${CMAKE_SOURCE_DIR}/scripts/${CROSSC_PLATFORM}.makefile)
-set(TARGET_FILES ${CMAKE_SOURCE_DIR}/scripts/${CROSSC_PLATFORM}_FILES)
 
-# validate that we have the makefile
-if(NOT EXISTS ${TARGET_MAKEFILE})
-	message(FATAL_ERROR "unsupported CROSSC_PLATFORM = ${CROSSC_PLATFORM}")
-endif()
+include(scripts/${CROSSC_PLATFORM}/CMakeLists.txt)
+
+message(STATUS "using isl version ${ISL_VERSION}")
+message(STATUS "using sysroot packages:")
+foreach(PKG ${SYSROOT_PKGS})
+	message("    ${PKG}")
+endforeach()
 
 # gmp, mpfr and mpc hardcoded to latest version
 set(GMP_VERSION 6.2.1)
 set(MPFR_VERSION 4.1.0)
 set(MPC_VERSION 1.2.1)
-
-# some gcc might need a specific version of isl
-execute_process(
-	COMMAND make -f ${TARGET_MAKEFILE} ISL_VERSION TARGET=${CROSSC_TARGET}
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/scripts
-	OUTPUT_VARIABLE ISL_VERSION
-)
-string(STRIP ${ISL_VERSION} ISL_VERSION)
 
 include(ExternalProject)
 include(ProcessorCount)
@@ -45,12 +38,13 @@ endif()
 ###
 ExternalProject_Add(gmp
 	URL https://ftp.gnu.org/gnu/gmp/gmp-${GMP_VERSION}.tar.xz
+	PREFIX gmp
 
 	BUILD_IN_SOURCE Yes
 	
 	CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR>
-	BUILD_COMMAND make -j${NPROC}
-	INSTALL_COMMAND make install
+	BUILD_COMMAND ${MAKE} -j${NPROC}
+	INSTALL_COMMAND ${MAKE} install
 
 	INSTALL_DIR ${DESTROOT}
 )
@@ -60,13 +54,14 @@ ExternalProject_Add(gmp
 ###
 ExternalProject_Add(mpfr
 	URL https://ftp.gnu.org/gnu/mpfr/mpfr-${MPFR_VERSION}.tar.xz
+	PREFIX mpfr
 
 	BUILD_IN_SOURCE Yes
 	
 	CONFIGURE_COMMAND ./configure --with-gmp=<INSTALL_DIR>
 									--prefix=<INSTALL_DIR>
-	BUILD_COMMAND make -j${NPROC}
-	INSTALL_COMMAND make install
+	BUILD_COMMAND ${MAKE}
+	INSTALL_COMMAND ${MAKE} install
 
 	INSTALL_DIR ${DESTROOT}
 )
@@ -77,13 +72,15 @@ add_dependencies(mpfr gmp)
 ###
 ExternalProject_Add(isl
 	URL https://gcc.gnu.org/pub/gcc/infrastructure/isl-${ISL_VERSION}.tar.bz2
+	PREFIX isl
 
 	BUILD_IN_SOURCE Yes
 	
-	CONFIGURE_COMMAND ./configure --with-gmp-prefix=<INSTALL_DIR>
+	CONFIGURE_COMMAND autoreconf
+	COMMAND ./configure --with-gmp-prefix=<INSTALL_DIR>
 									--prefix=<INSTALL_DIR>
-	BUILD_COMMAND make -j${NPROC}
-	INSTALL_COMMAND make install
+	BUILD_COMMAND ${MAKE} -j${NPROC}
+	INSTALL_COMMAND ${MAKE} install
 
 	INSTALL_DIR ${DESTROOT}
 )
@@ -94,14 +91,15 @@ add_dependencies(isl gmp)
 ###
 ExternalProject_Add(mpc
 	URL https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VERSION}.tar.gz
+	PREFIX mpc
 
 	BUILD_IN_SOURCE Yes
 	
 	CONFIGURE_COMMAND ./configure --with-mpfr=<INSTALL_DIR> 
 									--with-gmp=<INSTALL_DIR>
 									--prefix=<INSTALL_DIR>
-	BUILD_COMMAND make -j${NPROC}
-	INSTALL_COMMAND make install
+	BUILD_COMMAND ${MAKE} -j${NPROC}
+	INSTALL_COMMAND ${MAKE} install
 
 	INSTALL_DIR ${DESTROOT}
 )
@@ -110,60 +108,57 @@ add_dependencies(mpc gmp mpfr)
 ###
 # binutils
 ###
-execute_process(
-	COMMAND make -f ${TARGET_MAKEFILE} BINUTILS_PKG TARGET=${CROSSC_TARGET}
-	OUTPUT_VARIABLE BINUTILS_PKG
-)
 
-ExternalProject_Add(binutils
-	URL ${BINUTILS_PKG}
+# - docker srpm patch and copy the source out
+# - configure
+# - build
+# - install
 
-	BUILD_IN_SOURCE Yes
-	
-	PATCH_COMMAND make -f ${TARGET_MAKEFILE} BINUTILS_PATCH INSTALL_DIR=<INSTALL_DIR> SYSROOT=${SYSROOT} FILES=${TARGET_FILES} TARGET=${CROSSC_TARGET}
-	CONFIGURE_COMMAND make -f ${TARGET_MAKEFILE} BINUTILS_CONFIGURE INSTALL_DIR=<INSTALL_DIR> SYSROOT=${SYSROOT} FILES=${TARGET_FILES} TARGET=${CROSSC_TARGET}
-	BUILD_COMMAND make -f ${TARGET_MAKEFILE} BINUTILS_BUILD INSTALL_DIR=<INSTALL_DIR> SYSROOT=${SYSROOT} FILES=${TARGET_FILES} TARGET=${CROSSC_TARGET}
-	INSTALL_COMMAND make -f ${TARGET_MAKEFILE} BINUTILS_INSTALL INSTALL_DIR=<INSTALL_DIR> SYSROOT=${SYSROOT} FILES=${TARGET_FILES} TARGET=${CROSSC_TARGET}
+# execute_process(
+# 	COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_PKG TARGET=${CROSSC_TARGET}
+# 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/scripts
+# 	OUTPUT_VARIABLE BINUTILS_PKG
+# )
+# string(STRIP ${BINUTILS_PKG} BINUTILS_PKG)
 
-	INSTALL_DIR ${DESTROOT}
-)
+# ExternalProject_Add(binutils
+# 	URL ${BINUTILS_PKG}
+# 	BUILD_IN_SOURCE Yes
+
+#  	# PATCH_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_PATCH CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+#  	# CONFIGURE_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_CONFIGURE DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
+#  	# BUILD_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_BUILD DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
+#  	# INSTALL_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_INSTALL DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
+
+#  	INSTALL_DIR ${DESTROOT}
+# )
+
 
 ###
 # compiler
 ###
-execute_process(
-	COMMAND make -f ${TARGET_MAKEFILE} COMPILER_PKG TARGET=${CROSSC_TARGET}
-	OUTPUT_VARIABLE COMPILER_PKG
-)
+# ExternalProject_Add(compiler
+# 	DOWNLOAD_COMMAND touch dummy.txt
+# 	BUILD_IN_SOURCE Yes
 
-ExternalProject_Add(compiler
-	URL ${COMPILER_PKG}
+#  	PATCH_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} COMPILER_PATCH CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+#  	CONFIGURE_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} COMPILER_CONFIGURE DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
+#  	BUILD_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} COMPILER_BUILD DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
+#  	INSTALL_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} COMPILER_INSTALL DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
 
-	BUILD_IN_SOURCE Yes
-	
-	PATCH_COMMAND make -f ${TARGET_MAKEFILE} COMPILER_PATCH INSTALL_DIR=<INSTALL_DIR> SYSROOT=${SYSROOT} FILES=${TARGET_FILES} TARGET=${CROSSC_TARGET}
-	CONFIGURE_COMMAND make -f ${TARGET_MAKEFILE} COMPILER_CONFIGURE INSTALL_DIR=<INSTALL_DIR> SYSROOT=${SYSROOT} FILES=${TARGET_FILES} TARGET=${CROSSC_TARGET}
-	BUILD_COMMAND make -f ${TARGET_MAKEFILE} COMPILER_BUILD INSTALL_DIR=<INSTALL_DIR> SYSROOT=${SYSROOT} FILES=${TARGET_FILES} TARGET=${CROSSC_TARGET}
-	INSTALL_COMMAND make -f ${TARGET_MAKEFILE} COMPILER_INSTALL INSTALL_DIR=<INSTALL_DIR> SYSROOT=${SYSROOT} FILES=${TARGET_FILES} TARGET=${CROSSC_TARGET}
-
-	INSTALL_DIR ${DESTROOT}
-)
-add_dependencies(compiler binutils mpc mpfr isl gmp)
+#  	INSTALL_DIR ${DESTROOT}
+# )
+# add_dependencies(compiler binutils mpc mpfr isl gmp)
 
 ###
 # sysroot pre-compiled packages
 ###
-execute_process(
-	COMMAND make -f ${TARGET_MAKEFILE} SYSROOT_PKGS TARGET=${CROSSC_TARGET}
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/scripts
-	OUTPUT_VARIABLE SYSROOT_PKGS
-)
-string(REPLACE "\n" ";" SYSROOT_PKGS ${SYSROOT_PKGS})
 
 set(INDEX 0)
 foreach(PKG ${SYSROOT_PKGS})
 	ExternalProject_Add(sysroot-${INDEX}
 		URL ${PKG}
+		PREFIX sysroot-${INDEX}
 
 		DOWNLOAD_NO_EXTRACT Yes
 		
@@ -174,6 +169,6 @@ foreach(PKG ${SYSROOT_PKGS})
 
 		INSTALL_DIR ${SYSROOT}
 	)
-	add_dependencies(compiler sysroot-${INDEX})
+	# add_dependencies(compiler sysroot-${INDEX})
 	MATH(EXPR INDEX "${INDEX}+1")
 endforeach()

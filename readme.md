@@ -1,40 +1,34 @@
 
 # crossc
 
-### Building cross toolchain for (some) linux distros.
+### Building cross toolchain for linux distros.
 
-The goal is to be able to build a `x86-64` linux projects from an Apple M1 chip.
+The goal is to be able to build a `x86-64` linux projects from an Apple Silicon
+chip.
 
-Running the compiler from an `x86-64` docker image result in a build time 30 times slower (!) because each invocation of `gcc` runs through `qemu` while building with a native compiler is much *faster* (in my limited tests, building clang+tooling: `arm64`: *20 minutes*, `x86-64`: *7 hours*).
+Running the compiler from an `x86-64` docker image result in a build time 2 to 3
+times slower (!) because each invocation of `gcc` runs through `rosetta` while
+building with a native compiler is much *faster* (in my limited tests, building
+clang+tooling: `arm64`: *20 minutes*, `x86-64`: *45 minutes*).
 
-This repo contains scripts to build cross toolchains for some specific linux distros.
+This repo contains scripts to build cross toolchains for some specific linux
+distros.
+
+### Requirement
+
+- `cmake`
+- `sudo port install autoconf autoconf-archive automake gmake gsed m4`
 
 ## Status
 
-### centos7 devtoolset-11
+### centos9 gcc-toolset-13
 
-- It builds the centos7 devtoolset-11 `gcc` version and is able to compile and link a native binary!
-```
-/a.out: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.32, not stripped
-```
-
-- binary does not run :-( , it's probably because I'm not applying the extensive set of _redhat_ patches, yet.
-
-```
-/a.out: /lib64/libstdc++.so.6: version `CXXABI_1.3.9' not found (required by /a.out)
-/a.out: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21' not found (required by /a.out)
-```
 
 @todo:
-- build the correct version of `binutils` with the _redhat_ patches.
-- build `gcc` with the _redhat_ patches.
-- `gold` linker is not built (?)
-
-### centos9 `binutils` and `gcc`
-- not started
-
-### ubuntu ?
-- not started
+- gcc13 binutils
+- gcc13
+- fast linker ?
+- cmake cross toolchain
 
 ## How to build
 
@@ -43,38 +37,12 @@ Make sure that `/opt/cross` exists and is writable.
 ```
 > mkdir crossc/build
 > cd crossc/build
-> cmake -G Ninja -DCROSSC_PLATFORM=centos7-gcc11 ../.
+> cmake -G Ninja -DCROSSC_PLATFORM=centos9-gcc13 ../.
 > ninja
 ```
 
-It will build and install the cross toolchain in `/opt/cross/centos7-gcc11-x86_64`.
+It will build and install the cross toolchain in `/opt/cross/centos9-gcc13-x86_64`.
 
-`/opt/cross/centos7-gcc11-x86_64/bin`:
-- `x86_64-redhat-linux-addr2line`
-- `x86_64-redhat-linux-ar`
-- `x86_64-redhat-linux-as`
-- `x86_64-redhat-linux-c++`
-- `x86_64-redhat-linux-c++filt`
-- `x86_64-redhat-linux-cpp`
-- `x86_64-redhat-linux-elfedit`
-- `x86_64-redhat-linux-g++`
-- `x86_64-redhat-linux-gcc`
-- `x86_64-redhat-linux-gcc-10.2.1`
-- `x86_64-redhat-linux-gcc-ar`
-- `x86_64-redhat-linux-gcc-nm`
-- `x86_64-redhat-linux-gcc-ranlib`
-- `x86_64-redhat-linux-gcov`
-- `x86_64-redhat-linux-gcov-dump`
-- `x86_64-redhat-linux-gcov-tool`
-- `x86_64-redhat-linux-gprof`
-- `x86_64-redhat-linux-ld`
-- `x86_64-redhat-linux-ld.bfd`
-- `x86_64-redhat-linux-lto-dump`
-- `x86_64-redhat-linux-nm`
-- `x86_64-redhat-linux-objcopy`
-- `x86_64-redhat-linux-objdump`
-- `x86_64-redhat-linux-ranlib`
-- `x86_64-redhat-linux-readelf`
-- `x86_64-redhat-linux-size`
-- `x86_64-redhat-linux-strings`
-- `x86_64-redhat-linux-strip`
+`/opt/cross/centos9-gcc13-x86_64/bin`:
+- ...
+
