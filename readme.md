@@ -25,10 +25,9 @@ distros.
 
 
 @todo:
-- gcc13 binutils
-- gcc13
-- fast linker ?
+- a fast linker ?
 - cmake cross toolchain
+- build steps dependencies to fix: the source code is re-copied every time cmake files change.
 
 ## How to build
 

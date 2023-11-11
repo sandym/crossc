@@ -108,47 +108,63 @@ add_dependencies(mpc gmp mpfr)
 ###
 # binutils
 ###
+ExternalProject_Add(binutils
+	URL ${CMAKE_BINARY_DIR}/binutils_src
+	PREFIX binutils
+	BUILD_IN_SOURCE Yes
 
-# - docker srpm patch and copy the source out
-# - configure
-# - build
-# - install
+ 	CONFIGURE_COMMAND ./configure --target=${CROSSC_TARGET}-redhat-linux
+	 				--prefix=<INSTALL_DIR>
+	 				--disable-dependency-tracking
+	 				--quiet
+	 				--enable-ld=yes
+	 				--enable-gold=no
+	 				--enable-shared
+	 				--enable-deterministic-archives=no
+	 				--enable-compressed-debug-sections=none
+	 				--enable-generate-build-notes=no
+	 				--enable-threads=yes
+	 				--enable-relro=yes
+	 				--enable-plugins
+	 				--with-sysroot=${SYSROOT}
+ 	BUILD_COMMAND ${MAKE} -j${NPROC}
+ 	INSTALL_COMMAND ${MAKE} install
 
-# execute_process(
-# 	COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_PKG TARGET=${CROSSC_TARGET}
-# 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/scripts
-# 	OUTPUT_VARIABLE BINUTILS_PKG
-# )
-# string(STRIP ${BINUTILS_PKG} BINUTILS_PKG)
-
-# ExternalProject_Add(binutils
-# 	URL ${BINUTILS_PKG}
-# 	BUILD_IN_SOURCE Yes
-
-#  	# PATCH_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_PATCH CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
-#  	# CONFIGURE_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_CONFIGURE DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
-#  	# BUILD_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_BUILD DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
-#  	# INSTALL_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} BINUTILS_INSTALL DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
-
-#  	INSTALL_DIR ${DESTROOT}
-# )
+ 	INSTALL_DIR ${DESTROOT}
+)
 
 
 ###
 # compiler
 ###
-# ExternalProject_Add(compiler
-# 	DOWNLOAD_COMMAND touch dummy.txt
-# 	BUILD_IN_SOURCE Yes
+ExternalProject_Add(compiler
+	URL ${CMAKE_BINARY_DIR}/gcc_src
+	PREFIX compiler
+	BUILD_IN_SOURCE Yes
 
-#  	PATCH_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} COMPILER_PATCH CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}
-#  	CONFIGURE_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} COMPILER_CONFIGURE DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
-#  	BUILD_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} COMPILER_BUILD DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
-#  	INSTALL_COMMAND ${MAKE} -f ${TARGET_MAKEFILE} COMPILER_INSTALL DESTROOT=${DESTROOT} SYSROOT=${SYSROOT}
-
-#  	INSTALL_DIR ${DESTROOT}
-# )
-# add_dependencies(compiler binutils mpc mpfr isl gmp)
+  	PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/scripts/${CROSSC_PLATFORM}/patch_file
+	
+ 	CONFIGURE_COMMAND mkdir build
+	COMMAND cd build
+	COMMAND ../configure --target=${CROSSC_TARGET}-redhat-linux
+	 			--prefix=<INSTALL_DIR>
+	 			--disable-multilib
+	 			--with-mpc=<INSTALL_DIR>
+	 			--with-mpfr=<INSTALL_DIR>
+	 			--with-gmp=<INSTALL_DIR>
+	 			--with-isl=<INSTALL_DIR>
+	 			--enable-languages=c,c++,lto
+	 			--with-sysroot=${SYSROOT}
+	
+	BUILD_COMMAND cd build
+	COMMAND ${MAKE} -j${NPROC}
+	
+	INSTALL_COMMAND cd build
+	COMMAND ${MAKE} install
+	
+ 	INSTALL_DIR ${DESTROOT}
+)
+add_dependencies(compiler binutils mpc mpfr isl gmp)
 
 ###
 # sysroot pre-compiled packages
@@ -169,6 +185,6 @@ foreach(PKG ${SYSROOT_PKGS})
 
 		INSTALL_DIR ${SYSROOT}
 	)
-	# add_dependencies(compiler sysroot-${INDEX})
+	add_dependencies(compiler sysroot-${INDEX})
 	MATH(EXPR INDEX "${INDEX}+1")
 endforeach()

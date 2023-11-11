@@ -22,7 +22,31 @@ message(STATUS "gathering sysroot packages - done")
 
 set(SYSROOT_PKGS "")
 foreach(line ${SYSROOT_PKGS_OUTPUT})
-	if (${line} MATCHES "${CROSSC_TARGET}")
+	if (${line} MATCHES "${CROSSC_TARGET}.rpm")
 		list(APPEND SYSROOT_PKGS ${line})
 	endif()
 endforeach()
+
+file(REMOVE
+	${CMAKE_BINARY_DIR}/binutils_src
+	${CMAKE_BINARY_DIR}/gcc_src
+)
+execute_process(
+	COMMAND docker create --platform linux/${CROSSC_TARGET}
+			--name=centos9-gcc13-helper centos9-gcc13-helper
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+)
+message(STATUS "getting binutils patched source code")
+execute_process(
+	COMMAND docker cp centos9-gcc13-helper:/root/binutils_src ${CMAKE_BINARY_DIR}/.
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+)
+message(STATUS "getting gcc patched source code")
+execute_process(
+	COMMAND docker cp centos9-gcc13-helper:/root/gcc_src ${CMAKE_BINARY_DIR}/.
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+)
+execute_process(
+	COMMAND docker rm centos9-gcc13-helper
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+)
