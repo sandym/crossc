@@ -26,8 +26,9 @@ distros.
 
 @todo:
 - a fast linker ?
-- cmake cross toolchain
-- build steps dependencies to fix: the source code is re-copied every time cmake files change.
+- build steps dependencies to fix:
+	- the source code is re-copied every time cmake files change.
+	- separation of duty between the 2 CMakeLists.txt is not clean
 
 ## How to build
 
